@@ -3,9 +3,9 @@
 
 # Configuration
 
-# The diamiter of the drive wheels
+# The wifi SSID
 wifi_ssid = "********"
-# The distance between the centre of the drive wheels
+# The wifi password
 wifi_key = "********"
 
 
