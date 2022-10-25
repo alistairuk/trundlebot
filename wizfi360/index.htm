@@ -1,0 +1,310 @@
+<html>
+<head>
+<title>Trundle App Test</title>
+
+<style>
+
+body {
+	font-family: 'Arial','Helvetica', sans-serif;
+	background-color: white;
+}
+
+h1 {
+	text-align: center;
+	background-color: black;
+	color: white;
+	padding: 0.4em;
+	font-size: 3em;
+}
+
+.container {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 1em;
+	display: block;
+}
+
+.command {
+	border: 3px solid gray;
+	border-radius: .5em;
+	padding: 0.2em;
+	margin: 0.2em;
+	cursor: move;
+	vertical-align: middle;
+	width: 16em;
+	font-size: 1.8em;
+	text-align: left;
+}
+
+.command_name {
+	display: inline-block;
+	position: absolute;
+	left: 2.6em;
+	font-size: 1.8em;
+}
+
+.command_value {
+	position: absolute;
+	left: 7em;
+	border: 0;
+	background-color: inherit;
+	font-size: 1.8em;
+	width: 2.2em;
+	background-color: rgba(255, 255, 255, 0);
+}
+
+.command_forward {
+	background-color: lightblue;
+}
+
+.command_back {
+	background-color: pink;
+}
+
+.command_right {
+	background-color: lightgreen;
+}
+
+.command_left {
+	background-color: LightCoral;
+}
+
+.command_wait {
+	background-color: yellow;
+}
+
+.command_icon {
+	transform: translate(0.15em, 0.15em);
+	width : 2em;
+	height : 2em;
+	background-position: center;
+	background-repeat: no-repeat;
+	display: inline-block;
+}
+
+.icon_forward {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="fill:none;stroke:black;stroke-width:10;stroke-linecap:round;stroke-linejoin:round" ><path class="icon_defaultcsvstyle" d="M 70,35 V 130" /><path d="M 50,35 70,15 90,35" /></svg>');
+}
+
+.icon_back {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="fill:none;stroke:black;stroke-width:10;stroke-linecap:round;stroke-linejoin:round" ><path d="M 70,20 V 110" /><path d="M 50,110 70,130 90,110" /></svg>');
+}
+
+.icon_right {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="fill:none;stroke:black;stroke-width:10;stroke-linecap:round;stroke-linejoin:round" ><path d="m 30,120 a 50,50 0 0 1 0,-70 50,50 0 0 1 70,0" /><path d="M 115,35 V 65 H 85" /></svg>');
+}
+
+.icon_left {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="fill:none;stroke:black;stroke-width:10;stroke-linecap:round;stroke-linejoin:round" ><path d="m 110,120 a 50,50 0 0 0 0,-70 50,50 0 0 0 -70,0" /><path d="M 25,35 V 65 H 55" /></svg>');
+}
+
+.icon_wait {
+	background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="fill:none;stroke:black;stroke-width:10;stroke-linecap:round;stroke-linejoin:round" ><circle cx="70" cy="80" r="40" /><path d="m 70,80 20,-10" /><path d="m 70,30 v 10" /><path d="m 65,25 h 10" /></svg>');
+}
+
+#go_button {
+	width: 2em;
+	height: 2em;
+	border-radius: 50%;
+	background-color: darkgreen;
+	border-style: dotted;
+	border-color: green;
+	border-width: 0.1em;
+	color: lime;
+	text-align: center;
+	font-size: 4em;
+	margin: 0.4em;
+}
+
+@keyframes pulse {
+  0% { border-color: green; color: lime;}
+  50% { border-color: lime; color: green;}
+  100% { border-color: green; color: lime;}
+}
+
+#go_button:hover {
+	animation: pulse 1s;
+	animation-iteration-count: infinite;
+	cursor: pointer;
+}
+
+#newholder {
+	position: absolute;
+	display: block;
+	width: 15.5em;
+    right: 20px;     
+    bottom: 20px;
+	border: 3px solid grey;
+	background-color: silver;
+	border-radius: .5em;
+	padding: 0.4em 0.2em 0.2em 0.2em;
+	margin: 0.2em;
+	text-align: center;
+}
+
+#newcontainer .command {
+	font-size: 0.9em;
+}
+
+input {
+	scrollbar-color: red;
+}
+
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+
+	function handleDragStart(e) {
+		this.style.opacity = '0.4';
+		dragSrcEl = this;
+		e.dataTransfer.effectAllowed = 'move';
+		e.dataTransfer.setData('text/html', this.innerHTML);
+	}
+
+	function handleDragEnd(e) {
+		this.style.opacity = '1';
+		dragdropitems.forEach(function (item) {
+			item.classList.remove('over');
+		});
+	}
+
+	function handleDragOver(e) {
+		e.preventDefault();
+		return false;
+	}
+
+	function handleDragEnter(e) {
+		this.classList.add('over');
+	}
+
+	function handleDragLeave(e) {
+		this.classList.remove('over');
+	}
+  
+	function handleDrop(e) {
+		e.stopPropagation();
+		
+		console.log(e.target.parentElement.parentElement)
+		// Pretend we dropped on a command object if we droped on a child object
+		if (e.target.parentElement.parentElement.classList.contains('container')) {
+			targetEl = e.target.parentElement;
+		}
+		else {
+			targetEl = e.target;
+		}
+
+		// Move the command (and duplicate if dragging from the new command container
+		if (targetEl.parentElement == document.getElementById('container')) {
+
+			// Duplicate the thing if a new thing
+			if (dragSrcEl.parentElement == document.getElementById('newcontainer')) {
+				dup = dragSrcEl.cloneNode(true);
+				addCommandListeners(dup)
+				dup.style.opacity = '1';
+				dragSrcEl.after(dup);
+			}
+
+			// Move the thing
+			var rect = targetEl.getBoundingClientRect();
+			var fromtop = e.clientY - rect.top;  //y position within the element.	
+			var elementHeight = e.srcElement.offsetHeight;
+
+			if (fromtop < (elementHeight/2)) {
+				this.before(dragSrcEl);	 
+			}
+			else {
+				this.after(dragSrcEl);	 
+			}
+
+		}
+		
+		// Delete if returning to the new command container
+		if ((dragSrcEl.parentElement != document.getElementById('newcontainer')) &&
+			(targetEl.parentElement == document.getElementById('newcontainer')) &&
+			(document.getElementById('container').childElementCount>1)) {
+			e.stopPropagation();
+			dragSrcEl.remove();	 
+		}
+
+		
+			return false;
+	}
+
+	function addCommandListeners(item) {
+		item.addEventListener('dragstart', handleDragStart);
+		item.addEventListener('dragover', handleDragOver);
+		item.addEventListener('dragenter', handleDragEnter);
+		item.addEventListener('dragleave', handleDragLeave);
+		item.addEventListener('dragend', handleDragEnd);
+		item.addEventListener('drop', handleDrop);
+	}  
+
+	let dragdropitems = document.querySelectorAll('.command');
+	dragdropitems.forEach(function(item) {
+		addCommandListeners(item);
+	});
+
+	const xhr = new XMLHttpRequest();
+	var commandQueue = [];
+
+	function sendCommand( command ) {
+		const url = "run?cmd=" + command['cmd'] + "&val=" + command['val'];
+		xhr.open("GET", url, true);
+		xhr.send();
+	}
+	
+	function processQueue() {
+		if ( commandQueue.length > 0 ) {
+			if ( ( xhr.readyState == 0 ) || ( xhr.readyState == 4 ) ) {
+				sendCommand( commandQueue.shift() );
+			}
+		}
+	}
+
+	window.setInterval(processQueue, 200);
+
+	function fillQueue() {
+		let dragdropitems = document.querySelectorAll('#container .command');
+		dragdropitems.forEach(item => {
+			var command_entry = new Array();
+			command_entry.cmd = item.getAttribute('cmd');
+			command_entry.val = item.getElementsByClassName('command_value')[0].value;
+			commandQueue.push(command_entry)
+		})
+	}
+
+	document.getElementById('go_button').addEventListener('click', fillQueue);
+
+});
+
+</script>
+
+</head>
+<body>
+
+<h1>Trundlebot Control</h1>
+
+<div id="pageholder">
+
+	<div id="listholder">
+		<div class="container" id="container">	
+			<div draggable="true" class="command command_forward" cmd="f"><div class="command_icon icon_forward"></div><div class="command_name">Forward</div><input class="command_value" type="number" step="5" value="20"></input></div>
+		</div>
+	</div>
+
+	<div id="newholder">
+		<p>Drag new Commands from here<br />and drag them back to delete</p>
+		<div class="container" id="newcontainer">
+			<div draggable="true" class="command command_forward" cmd="f"><div class="command_icon icon_forward"></div><div class="command_name">Forward</div><input class="command_value" type="number" step="5" value="20"></input></div>
+			<div draggable="true" class="command command_back" cmd="b"><div class="command_icon icon_back"></div><div class="command_name">Back</div><input class="command_value" type="number" step="5" value="20"></input></div>
+			<div draggable="true" class="command command_right" cmd="r"><div class="command_icon icon_right"></div><div class="command_name">Rigth</div><input class="command_value" type="number" step="5" value="90"></input></div>
+			<div draggable="true" class="command command_left" cmd="l"><div class="command_icon icon_left"></div><div class="command_name">Left</div><input class="command_value" type="number" step="5" value="90"></input></div>
+			<div draggable="true" class="command command_wait" cmd="w"><div class="command_icon icon_wait"></div><div class="command_name">Wait</div><input class="command_value" type="number" step="5" value="5"></input></div>
+		</div>
+		<button id="go_button">Go!</button>
+	</div>
+
+</div>
+
+</body>
